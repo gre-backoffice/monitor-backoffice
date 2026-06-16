@@ -27,7 +27,9 @@
     cursor:pointer;font-family:-apple-system,sans-serif}
   #sb-logout:hover{border-color:#f85149;color:#f85149}
 </style>
-<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="vendor/react.production.min.js"></script>
+<script src="vendor/react-dom.production.min.js"></script>
+<script src="vendor/supabase.js"></script>
 <script src="config.js"></script>
 <script src="sb-bridge.js"></script>
 </head>
@@ -430,11 +432,15 @@
 
   <header style="position: sticky; top: 0; z-index: 20; background: rgba(13,17,23,0.88); backdrop-filter: blur(10px); border-bottom: 1px solid #21262d;">
     <div style="max-width: 1480px; margin: 0 auto; padding: 0 28px; height: 62px; display: flex; align-items: center; gap: 18px;">
-      <div style="display: flex; align-items: center; gap: 11px; flex-shrink: 0;">
-        <div style="width: 9px; height: 9px; border-radius: 50%; background: #3fb950; box-shadow: 0 0 0 3px rgba(63,185,80,0.18); animation: pulse 2.4s ease-in-out infinite;"></div>
-        <div style="display: flex; flex-direction: column; line-height: 1.15;">
-          <span style="font-size: 14.5px; font-weight: 600; letter-spacing: -0.01em; white-space: nowrap;">Monitor de Chamados</span>
-          <span style="font-size: 11px; color: #8b949e; font-family: 'IBM Plex Mono', monospace; letter-spacing: 0.02em;">TI B2C/B2E · Grendene</span>
+      <div style="display: flex; align-items: center; gap: 14px; flex-shrink: 0;">
+        <img src="assets/GRND3.SA_BIG.png" alt="Grendene" style="height: 24px; flex-shrink: 0;">
+        <div style="width: 1px; height: 26px; background: #21262d; flex-shrink: 0;"></div>
+        <div style="display: flex; align-items: center; gap: 9px;">
+          <div style="width: 9px; height: 9px; border-radius: 50%; background: #3fb950; box-shadow: 0 0 0 3px rgba(63,185,80,0.18); animation: pulse 2.4s ease-in-out infinite; flex-shrink: 0;"></div>
+          <div style="display: flex; flex-direction: column; line-height: 1.15;">
+            <span style="font-size: 14.5px; font-weight: 600; letter-spacing: -0.01em; white-space: nowrap;">Monitor de Chamados</span>
+            <span style="font-size: 11px; color: #8b949e; font-family: 'IBM Plex Mono', monospace; letter-spacing: 0.02em;">TI B2C/B2E · Backoffice Tech</span>
+          </div>
         </div>
       </div>
 
@@ -447,8 +453,6 @@
       <div style="margin-left: auto; display: flex; align-items: center; gap: 7px;">
         <button onclick="{{ exportCSV }}" style="padding: 7px 12px; border-radius: 7px; border: 1px solid #2a313b; background: #161b22; color: #c9d1d9; font-size: 12.5px; font-weight: 500; cursor: pointer;">Exportar CSV</button>
         <button onclick="{{ exportJSON }}" style="padding: 7px 12px; border-radius: 7px; border: 1px solid #2a313b; background: #161b22; color: #c9d1d9; font-size: 12.5px; font-weight: 500; cursor: pointer;">JSON</button>
-        <div style="width: 1px; height: 22px; background: #21262d; margin: 0 3px;"></div>
-        <button onclick="{{ loadSamples }}" style="padding: 7px 12px; border-radius: 7px; border: 1px solid #2a313b; background: transparent; color: #8b949e; font-size: 12.5px; font-weight: 500; cursor: pointer;">Exemplos</button>
         <button onclick="{{ clearAll }}" style="padding: 7px 12px; border-radius: 7px; border: 1px solid #2a313b; background: transparent; color: #8b949e; font-size: 12.5px; font-weight: 500; cursor: pointer;">Limpar</button>
       </div>
     </div>
@@ -639,6 +643,10 @@
             <option value="">Todas severidades</option>
             <sc-for list="{{ severidades }}" as="sv" hint-placeholder-count="4"><option value="{{ sv }}">{{ sv }}</option></sc-for>
           </select>
+          <select value="{{ filters.responsavel }}" onchange="{{ setFilterResponsavel }}" style="background: #161b22; border: 1px solid #2a313b; border-radius: 8px; padding: 8px 11px; color: #c9d1d9; font-size: 12.5px; outline: none;">
+            <option value="">Todos os responsáveis</option>
+            <sc-for list="{{ responsaveisFiltro }}" as="r" hint-placeholder-count="3"><option value="{{ r }}">{{ r }}</option></sc-for>
+          </select>
           <sc-if value="{{ hasFilters }}" hint-placeholder-val="{{ false }}">
             <button onclick="{{ clearFilters }}" style="padding: 8px 12px; border-radius: 8px; border: 1px solid #2a313b; background: transparent; color: #8b949e; font-size: 12.5px; cursor: pointer;">Limpar filtros</button>
           </sc-if>
@@ -723,7 +731,6 @@
                               <sc-if value="{{ t.hasInicioAtendimento }}" hint-placeholder-val="{{ false }}">
                                 <span style="display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 7px; background: rgba(88,166,255,0.07); border: 1px solid rgba(88,166,255,0.2); font-size: 12px; color: #58a6ff;">✓ Atendimento iniciado · {{ t.inicioAtendimentoFmt }}</span>
                               </sc-if>
-                              <button onclick="{{ t.resolveNow }}" style="padding: 7px 13px; border-radius: 7px; border: 1px solid rgba(63,185,80,0.4); background: rgba(63,185,80,0.12); color: #3fb950; font-size: 12px; font-weight: 600; cursor: pointer;">Resolver agora</button>
                             </div>
                           </div>
 
@@ -822,6 +829,19 @@
                             <span style="font-size: 11px; font-weight: 600; color: #8b949e; text-transform: uppercase; letter-spacing: 0.04em;">Comentários / observações</span>
                             <textarea value="{{ t.comentarios }}" onchange="{{ t.setComentarios }}" placeholder="Anotações, encaminhamentos, follow-up…" rows="2" style="background: #0d1117; border: 1px solid #2a313b; border-radius: 8px; padding: 10px 12px; color: #e6edf3; font-size: 13px; outline: none; resize: vertical; font-family: inherit; line-height: 1.5;"></textarea>
                           </div>
+
+                          <sc-if value="{{ t.isPauseConfirm }}" hint-placeholder-val="{{ false }}">
+                            <div style="grid-column: 1 / -1; background: rgba(210,153,34,0.07); border: 1px solid rgba(210,153,34,0.4); border-radius: 9px; padding: 15px 16px;">
+                              <div style="display: flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 600; color: #e6edf3; margin-bottom: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #d29922; flex-shrink: 0;"></span>O que fazer com o tempo em andamento?</div>
+                              <div style="font-size: 12.5px; color: #8b949e; line-height: 1.6; margin-bottom: 14px;">Este chamado tem <b style="color: #c9d1d9;">{{ t.tempoAndamentoAcumulado }}</b> registrado em andamento. Escolha como tratar esse período antes de voltar para Aberto.</div>
+                              <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;">
+                                <button onclick="{{ t.pausarAtendimento }}" style="padding: 9px 16px; border-radius: 7px; border: 1px solid rgba(210,153,34,0.5); background: rgba(210,153,34,0.12); color: #d29922; font-size: 12.5px; font-weight: 600; cursor: pointer;">⏸ Pausar — manter tempo acumulado</button>
+                                <button onclick="{{ t.zerarAtendimento }}" style="padding: 9px 16px; border-radius: 7px; border: 1px solid #2a313b; background: transparent; color: #8b949e; font-size: 12.5px; font-weight: 500; cursor: pointer;">↺ Zerar — reiniciar do zero</button>
+                                <button onclick="{{ t.cancelPause }}" style="padding: 9px 14px; border-radius: 7px; border: 1px solid #2a313b; background: transparent; color: #6e7681; font-size: 12.5px; cursor: pointer;">Cancelar</button>
+                              </div>
+                              <div style="font-size: 11.5px; color: #5b6573; line-height: 1.5;"><b style="color: #6e7681;">Pausar</b> preserva os {{ t.tempoAndamentoAcumulado }} já trabalhados; ao retomar "Em andamento" o cronômetro continua de onde parou. <b style="color: #6e7681;">Zerar</b> descarta esse período e reinicia do zero na próxima retomada.</div>
+                            </div>
+                          </sc-if>
 
                           <sc-if value="{{ t.isConfirming }}" hint-placeholder-val="{{ false }}">
                             <div style="grid-column: 1 / -1; background: rgba(63,185,80,0.07); border: 1px solid rgba(63,185,80,0.35); border-radius: 9px; padding: 15px 16px;">
@@ -1010,7 +1030,7 @@
         <sc-if value="{{ noData }}" hint-placeholder-val="{{ false }}">
           <div style="background: #161b22; border: 1px solid #21262d; border-radius: 12px; padding: 80px 20px; text-align: center;">
             <div style="font-size: 15px; color: #8b949e; margin-bottom: 8px;">Sem dados ainda</div>
-            <div style="font-size: 13px; color: #5b6573;">Registre chamados na aba <b style="color: #8b949e;">Registrar</b> ou clique em <b style="color: #8b949e;">Exemplos</b> para visualizar os indicadores.</div>
+            <div style="font-size: 13px; color: #5b6573;">Registre chamados na aba <b style="color: #8b949e;">Registrar</b> para visualizar os indicadores.</div>
           </div>
         </sc-if>
       </div>
@@ -1055,9 +1075,10 @@ class Component extends DCLogic {
       customGrupos: [],
       form: this.blankForm(),
       formError: '', formOk: '',
-      filters: { grupo: '', sistema: '', status: '', severidade: '', busca: '' },
+      filters: { grupo: '', sistema: '', status: '', severidade: '', responsavel: '', busca: '' },
       expanded: null,
       confirmingId: null,
+      pauseConfirmId: null,
       toast: '',
       addingGrupo: false,
       newGrupoName: '',
@@ -1282,11 +1303,19 @@ class Component extends DCLogic {
   confirmResolved(id) {
     const t = this.state.tickets.find(x => x.id === id);
     if (!t) return;
-    this.patch(id, { status: 'resolvido', resolvedDeFato: true, resolvedAt: t.resolvedAt || this.nowLocal() });
+    const resolvedAt = t.resolvedAt || this.nowLocal();
+    this.patch(id, { status: 'resolvido', resolvedDeFato: true, resolvedAt });
     this.setState({ confirmingId: null, expanded: null });
     const who = ['o solicitante (' + (t.solicitante || '—') + ')'];
     if (t.formaAcionamento !== 'privado' && t.grupo) who.push('o grupo ' + t.grupo);
-    this.showToast('Chamado concluído ✓  Avise ' + who.join(' e ') + ' que o problema foi resolvido.');
+    let toast = 'Chamado concluído ✓  Avise ' + who.join(' e ') + ' que o problema foi resolvido.';
+    if (t.parceiroExterno) {
+      const tempoAndamento = (t.tempoAcumulado || 0) + (t.inicioAtendimento ? (new Date(resolvedAt) - new Date(t.inicioAtendimento)) : 0);
+      if (tempoAndamento > 2 * 3600000) {
+        toast += '  ⚠ Registre no Jira para apontamento de horas do parceiro.';
+      }
+    }
+    this.showToast(toast);
   }
   cancelConfirm() { this.setState({ confirmingId: null }); }
 
@@ -1328,12 +1357,30 @@ class Component extends DCLogic {
   }
   setStatus(id, status) {
     const t = this.state.tickets.find(x => x.id === id);
+    if (status === 'aberto' && t.status === 'andamento' && (t.inicioAtendimento || t.tempoAcumulado)) {
+      this.setState({ pauseConfirmId: id });
+      return;
+    }
     const obj = { status };
+    if (status === 'andamento' && !t.inicioAtendimento) obj.inicioAtendimento = this.nowLocal();
     if (status === 'resolvido') { if (!t.resolvedAt) obj.resolvedAt = this.nowLocal(); }
     else { obj.resolvedAt = null; }
     this.patch(id, obj);
   }
-  resolveNow(id) { this.patch(id, { status: 'resolvido', resolvedAt: this.nowLocal() }); }
+  pausarAtendimento(id) {
+    const t = this.state.tickets.find(x => x.id === id);
+    if (!t) return;
+    const acumulado = (t.tempoAcumulado || 0) + (t.inicioAtendimento ? (Date.now() - new Date(t.inicioAtendimento).getTime()) : 0);
+    this.patch(id, { status: 'aberto', resolvedAt: null, tempoAcumulado: acumulado, inicioAtendimento: null });
+    this.setState({ pauseConfirmId: null });
+    this.showToast('⏸ Atendimento pausado — ' + this.fmtDur(acumulado) + ' acumulado.');
+  }
+  zerarAtendimento(id) {
+    this.patch(id, { status: 'aberto', resolvedAt: null, tempoAcumulado: 0, inicioAtendimento: null });
+    this.setState({ pauseConfirmId: null });
+    this.showToast('↺ Período zerado — cronômetro reiniciará ao retomar.');
+  }
+  cancelPause() { this.setState({ pauseConfirmId: null }); }
   toggleExpand(id) { this.setState(s => ({ expanded: s.expanded === id ? null : id })); }
   deleteTicket(id) {
     if (!confirm('Excluir este chamado permanentemente?')) return;
@@ -1367,37 +1414,6 @@ class Component extends DCLogic {
     if (!confirm('Limpar TODOS os chamados registrados? Esta ação não pode ser desfeita.')) return;
     this.persist([]); this.setState({ tickets: [], expanded: null });
   }
-  loadSamples() {
-    const now = Date.now(), H = 3600000;
-    const mk = (hAgo, durMin, sev, sis, grp, sol, st, desc, pe, peq, os, osq, df, com) => {
-      const ac = new Date(now - hAgo * H);
-      const p = n => String(n).padStart(2, '0');
-      const acl = ac.getFullYear() + '-' + p(ac.getMonth() + 1) + '-' + p(ac.getDate()) + 'T' + p(ac.getHours()) + ':' + p(ac.getMinutes());
-      let rl = null;
-      if (st === 'resolvido') {
-        const rd = new Date(ac.getTime() + durMin * 60000);
-        rl = rd.getFullYear() + '-' + p(rd.getMonth() + 1) + '-' + p(rd.getDate()) + 'T' + p(rd.getHours()) + ':' + p(rd.getMinutes());
-      }
-      return { id: 'c' + Math.random().toString(36).slice(2, 10), solicitante: sol, grupo: grp, sistema: sis, descricao: desc, severidade: sev, acionamento: acl, responsavel: '', status: st, resolvedAt: rl, resolvedDeFato: df, parceiroExterno: pe, parceiroQual: peq, outroSetor: os, setorQual: osq, comentarios: com, createdAt: ac.toISOString() };
-    };
-    const samples = [
-      mk(2, 0, 'Crítica', 'Adyen', 'Plantão B2C', 'Camila R.', 'andamento', 'Pagamentos com cartão recusando em massa no checkout.', true, 'Adyen', false, '', false, 'Escalado para o gerente de conta.'),
-      mk(5, 38, 'Alta', 'OCC', 'Plantão B2C', 'Diego M.', 'resolvido', 'Página de produto retornando 500 intermitente.', false, '', true, 'Desenvolvimento', true, 'Deploy de hotfix resolveu.'),
-      mk(7, 0, 'Média', 'Intelipost', 'Operação OMNI', 'Paula S.', 'aberto', 'Cálculo de frete divergente para algumas regiões.', false, '', false, '', false, ''),
-      mk(9, 120, 'Crítica', 'OCC', 'Plantão B2C', 'Camila R.', 'resolvido', 'Carrinho zerando ao aplicar cupom de campanha.', false, '', true, 'Desenvolvimento', true, 'Bug no motor de promoções.'),
-      mk(11, 25, 'Baixa', 'ConecteMe', 'Suporte Loja', 'Rafael T.', 'resolvido', 'Lentidão no login de vendedores.', false, '', false, '', true, ''),
-      mk(14, 0, 'Alta', 'ClearSale', 'Plantão B2C', 'Diego M.', 'andamento', 'Pedidos travando em análise antifraude.', true, 'Prático', false, '', false, ''),
-      mk(16, 95, 'Média', 'AnyMarket', 'Marketplace', 'Paula S.', 'resolvido', 'Anúncios não sincronizando com o Mercado Livre.', true, 'Maker', false, '', true, 'Reprocessado fila de integração.'),
-      mk(19, 0, 'Alta', 'Seta Digital', 'Suporte Loja', 'Rafael T.', 'aberto', 'PDV da loja sem comunicação com estoque central.', false, '', true, 'Infraestrutura', false, ''),
-      mk(22, 45, 'Média', 'Oracle Responsys', 'Plantão B2C', 'Camila R.', 'resolvido', 'Disparo de e-mail de campanha não saiu no horário.', false, '', false, '', true, ''),
-      mk(26, 0, 'Crítica', 'Adyen', 'Marketplace', 'Diego M.', 'andamento', 'Split de pagamento de sellers com erro.', true, 'Adyen', true, 'Financeiro', false, ''),
-      mk(30, 70, 'Baixa', 'Pliq', 'Operação OMNI', 'Paula S.', 'resolvido', 'Relatório de SLA com dados desatualizados.', false, '', false, '', true, ''),
-      mk(34, 180, 'Alta', 'E-Millenium', 'Operação OMNI', 'Rafael T.', 'resolvido', 'Integração de NF-e falhando para parte dos pedidos.', false, '', true, 'Fiscal', true, 'Certificado renovado.')
-    ];
-    const tickets = [...samples, ...this.state.tickets];
-    this.persist(tickets); this.setState({ tickets, tab: 'indicadores' });
-  }
-
   // ---------- style builders ----------
   tabStyle(active) {
     return 'padding: 8px 14px; border-radius: 8px; border: none; background: ' + (active ? '#1c232c' : 'transparent') +
@@ -1426,6 +1442,7 @@ class Component extends DCLogic {
       if (f.sistema) { const sis = (t.sistemas && t.sistemas.length) ? t.sistemas : (t.sistema ? [t.sistema] : []); if (!sis.includes(f.sistema)) return false; }
       if (f.status && t.status !== f.status) return false;
       if (f.severidade && t.severidade !== f.severidade) return false;
+      if (f.responsavel && t.responsavel !== f.responsavel) return false;
       if (q) {
         const hay = (t.solicitante + ' ' + t.sistema + ' ' + t.grupo + ' ' + t.descricao + ' ' + t.comentarios + ' ' + t.responsavel + ' ' + t.setorQual + ' ' + t.parceiroQual).toLowerCase();
         if (!hay.includes(q)) return false;
@@ -1489,7 +1506,6 @@ class Component extends DCLogic {
         setAberto: () => this.setStatus(t.id, 'aberto'),
         setAndamento: () => this.setStatus(t.id, 'andamento'),
         setResolvido: () => this.setStatus(t.id, 'resolvido'),
-        resolveNow: () => this.resolveNow(t.id),
         toggleDefato: () => this.patch(t.id, { resolvedDeFato: !t.resolvedDeFato }),
         parceiroSim: () => this.patch(t.id, { parceiroExterno: true }),
         parceiroNao: () => this.patch(t.id, { parceiroExterno: false, parceiroQual: '' }),
@@ -1520,14 +1536,24 @@ class Component extends DCLogic {
           return this.fmtDur(new Date(t.inicioAtendimento) - new Date(t.acionamento));
         })(),
         tempoAtendimento: (() => {
-          if (!t.inicioAtendimento) return '—';
+          const acumulado = t.tempoAcumulado || 0;
+          if (!t.inicioAtendimento) return acumulado > 0 ? this.fmtDur(acumulado) : '—';
           const end = t.resolvedAt ? new Date(t.resolvedAt) : now;
-          return this.fmtDur(end - new Date(t.inicioAtendimento));
+          return this.fmtDur(acumulado + (end - new Date(t.inicioAtendimento)));
         })(),
-        isOverdueWaiting: (t.status !== 'resolvido') && !t.inicioAtendimento && ((now - new Date(t.acionamento)) > 4 * 3600000),
-        isOverdueWorking: (t.status !== 'resolvido') && !!t.inicioAtendimento && ((now - new Date(t.inicioAtendimento)) > 4 * 3600000),
+        isOverdueWaiting: (t.status !== 'resolvido') && !t.inicioAtendimento && !(t.tempoAcumulado) && ((now - new Date(t.acionamento)) > 4 * 3600000),
+        isOverdueWorking: (() => {
+          if (t.status === 'resolvido') return false;
+          const acumulado = t.tempoAcumulado || 0;
+          const current = t.inicioAtendimento ? (now - new Date(t.inicioAtendimento)) : 0;
+          return (acumulado + current) > 4 * 3600000;
+        })(),
         overdueHours: Math.floor((now - new Date(t.acionamento)) / 3600000),
-        overdueWorkHours: t.inicioAtendimento ? Math.floor((now - new Date(t.inicioAtendimento)) / 3600000) : 0,
+        overdueWorkHours: (() => {
+          const acumulado = t.tempoAcumulado || 0;
+          const current = t.inicioAtendimento ? (now - new Date(t.inicioAtendimento)) : 0;
+          return Math.floor((acumulado + current) / 3600000);
+        })(),
         overdueLeft: (() => {
           if (t.status === 'resolvido') return '3px solid transparent';
           if (!t.inicioAtendimento && (now - new Date(t.acionamento)) > 4 * 3600000) return '3px solid #d29922';
@@ -1535,11 +1561,27 @@ class Component extends DCLogic {
           return '3px solid transparent';
         })(),
         startAtendimento: () => this.startAtendimento(t.id),
+        isPauseConfirm: st.pauseConfirmId === t.id,
+        tempoAndamentoAcumulado: (() => {
+          const acumulado = (t.tempoAcumulado || 0) + (t.inicioAtendimento ? (now - new Date(t.inicioAtendimento)) : 0);
+          return acumulado > 0 ? this.fmtDur(acumulado) : '0min';
+        })(),
+        pausarAtendimento: () => this.pausarAtendimento(t.id),
+        zerarAtendimento: () => this.zerarAtendimento(t.id),
+        cancelPause: () => this.cancelPause(),
         isConfirming: st.confirmingId === t.id,
         confirmMsg: (() => {
           const who = ['o solicitante (' + (t.solicitante || '—') + ')'];
           if (t.formaAcionamento !== 'privado' && t.grupo) who.push('o grupo ' + t.grupo);
-          return 'Recomende que quem concluiu avise ' + who.join(' e ') + ' que o problema foi resolvido.';
+          let msg = 'Recomende que quem concluiu avise ' + who.join(' e ') + ' que o problema foi resolvido.';
+          if (t.parceiroExterno) {
+            const end = t.resolvedAt ? new Date(t.resolvedAt) : now;
+            const tempoAndamento = (t.tempoAcumulado || 0) + (t.inicioAtendimento ? (end - new Date(t.inicioAtendimento)) : 0);
+            if (tempoAndamento > 2 * 3600000) {
+              msg += ' ⚠ Este chamado ficou mais de 2h em andamento com atuação do parceiro ' + (t.parceiroQual || 'externo') + ' — registre no Jira para apontamento de horas trabalhadas.';
+            }
+          }
+          return msg;
         })(),
         onSave: () => this.saveTicket(t.id),
         confirmResolved: () => this.confirmResolved(t.id),
@@ -1550,7 +1592,8 @@ class Component extends DCLogic {
     if (st.sortTempo) rows.sort((a, b) => st.sortTempo === 'desc' ? b.tempoMs - a.tempoMs : a.tempoMs - b.tempoMs);
 
     const f = st.filters;
-    const hasFilters = !!(f.grupo || f.sistema || f.status || f.severidade || f.busca);
+    const hasFilters = !!(f.grupo || f.sistema || f.status || f.severidade || f.responsavel || f.busca);
+    const responsaveisFiltro = [...new Set(st.tickets.map(t => t.responsavel).filter(r => r && r.trim()))].sort();
 
     // --- dashboard ---
     const total = dashTickets.length;
@@ -1625,7 +1668,7 @@ class Component extends DCLogic {
       goAcompanhar: () => this.setState({ tab: 'acompanhar' }),
       goIndicadores: () => this.setState({ tab: 'indicadores' }),
       exportCSV: () => this.exportCSV(), exportJSON: () => this.exportJSON(),
-      loadSamples: () => this.loadSamples(), clearAll: () => this.clearAll(),
+      clearAll: () => this.clearAll(),
 
       // sistema pills for form (base filtered by hidden + custom)
       sistemasOptions: [
@@ -1723,7 +1766,9 @@ class Component extends DCLogic {
       setFilterSistema: e => this.setState(s => ({ filters: { ...s.filters, sistema: e.target.value } })),
       setFilterStatus: e => this.setState(s => ({ filters: { ...s.filters, status: e.target.value } })),
       setFilterSeveridade: e => this.setState(s => ({ filters: { ...s.filters, severidade: e.target.value } })),
-      clearFilters: () => this.setState({ filters: { grupo: '', sistema: '', status: '', severidade: '', busca: '' } }),
+      setFilterResponsavel: e => this.setState(s => ({ filters: { ...s.filters, responsavel: e.target.value } })),
+      clearFilters: () => this.setState({ filters: { grupo: '', sistema: '', status: '', severidade: '', responsavel: '', busca: '' } }),
+      responsaveisFiltro,
 
       // dashboard
       hasData: tickets.length > 0, noData: tickets.length === 0,

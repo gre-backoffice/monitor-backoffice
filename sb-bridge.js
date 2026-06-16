@@ -151,9 +151,10 @@
     ov.id = "sb-login";
     ov.innerHTML =
       '<div class="sb-card">' +
+      '<img src="assets/GRND3.SA_BIG.png" alt="Grendene" style="height:38px;display:block;margin:0 auto 18px;">' +
       '<div class="sb-dot"></div>' +
-      '<h1>Torre de Plantão</h1>' +
-      '<p>Monitor de chamados — B2C / B2E</p>' +
+      '<h1>Monitor de Chamados</h1>' +
+      '<p>TI B2C / B2E · Backoffice Tech</p>' +
       '<input id="sb-email" type="email" placeholder="e-mail" autocomplete="username" />' +
       '<input id="sb-pass" type="password" placeholder="senha" autocomplete="current-password" />' +
       '<button id="sb-enter">Entrar</button>' +
@@ -190,6 +191,40 @@
     document.body.appendChild(b);
   }
 
+  // ---------- modo demo (offline) ----------
+  function bootDemo() {
+    const CH_KEY_LOCAL = "grendene_chamados_v1";
+    if (!localStorage.getItem(CH_KEY_LOCAL)) {
+      const agora = new Date().toISOString();
+      const samples = [
+        {
+          id: "demo-1", solicitante: "Ana Souza", grupo: "TI B2C", sistema: "SAP",
+          sistemas: ["SAP"], formaAcionamento: "grupo", setorSolicitante: "Operações",
+          descricao: "Usuário sem acesso ao módulo de vendas após atualização.", severidade: "Alta",
+          acionamento: agora, responsavel: "Gui", status: "aberto",
+          resolvedAt: null, resolvedDeFato: false, parceiroExterno: false,
+          parceiroQual: "", outroSetor: false, setorQual: "", comentarios: "", createdAt: agora
+        },
+        {
+          id: "demo-2", solicitante: "Carlos Lima", grupo: "TI B2E", sistema: "Teams",
+          sistemas: ["Teams"], formaAcionamento: "privado", setorSolicitante: "RH",
+          descricao: "Não consegue entrar nas reuniões do Teams.", severidade: "Média",
+          acionamento: agora, responsavel: "", status: "andamento",
+          resolvedAt: null, resolvedDeFato: false, parceiroExterno: false,
+          parceiroQual: "", outroSetor: false, setorQual: "", comentarios: "", createdAt: agora
+        }
+      ];
+      localStorage.setItem(CH_KEY_LOCAL, JSON.stringify(samples));
+    }
+
+    const badge = document.createElement("div");
+    badge.style.cssText = "position:fixed;top:10px;right:14px;z-index:5000;background:#d29922;color:#0d1117;border-radius:7px;padding:5px 12px;font-size:11.5px;font-weight:700;font-family:-apple-system,sans-serif;letter-spacing:0.04em;";
+    badge.textContent = "MODO DEMO";
+    document.body.appendChild(badge);
+
+    loadRuntime();
+  }
+
   // ---------- boot ----------
   async function proceed() {
     const loader = document.getElementById("sb-loader");
@@ -213,6 +248,10 @@
   async function boot() {
     if (typeof SUPABASE_CONFIG === "undefined" || /SEU-PROJETO/.test(SUPABASE_CONFIG.url)) {
       fail("Configure o config.js com a URL e a anon key do Supabase.");
+      return;
+    }
+    if (SUPABASE_CONFIG.demoMode) {
+      bootDemo();
       return;
     }
     sb = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
