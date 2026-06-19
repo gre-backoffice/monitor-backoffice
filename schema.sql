@@ -16,7 +16,11 @@ create table if not exists public.chamados (
   severidade         text,
   acionamento        text,           -- data/hora informada (texto, igual ao app)
   responsavel        text,
-  status             text,           -- 'aberto' | 'resolvido'
+  status             text,           -- 'aberto' | 'andamento' | 'pausado' | 'resolvido'
+  inicio_atendimento text,           -- data/hora em que o atendimento foi iniciado
+  tempo_acumulado    bigint,         -- ms de trabalho ativo acumulado (exclui pausas)
+  paused_at          text,           -- data/hora do início da pausa atual (null se não pausado)
+  total_paused_ms    bigint,         -- ms totais gastos em pausas
   resolved_at        text,
   resolved_de_fato   boolean default false,
   parceiro_externo   boolean default false,

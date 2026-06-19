@@ -637,6 +637,7 @@
             <option value="">Todos os status</option>
             <option value="aberto">Aberto</option>
             <option value="andamento">Em andamento</option>
+            <option value="pausado">Pausado</option>
             <option value="resolvido">Resolvido</option>
           </select>
           <select value="{{ filters.severidade }}" onchange="{{ setFilterSeveridade }}" style="background: #161b22; border: 1px solid #2a313b; border-radius: 8px; padding: 8px 11px; color: #c9d1d9; font-size: 12.5px; outline: none;">
@@ -656,21 +657,22 @@
           <div style="overflow-x: auto;">
             <div style="min-width: 1080px;">
               <!-- header -->
-              <div style="display: grid; grid-template-columns: 116px 132px 150px 130px 1fr 134px 132px 64px; gap: 0; padding: 0 6px; background: #1a2029; border-bottom: 1px solid #21262d;">
+              <div style="display: grid; grid-template-columns: 116px 132px 150px 130px 1fr 134px 110px 118px 64px; gap: 0; padding: 0 6px; background: #1a2029; border-bottom: 1px solid #21262d;">
                 <div style="padding: 11px 10px; font-size: 11px; font-weight: 600; color: #8b949e; text-transform: uppercase; letter-spacing: 0.04em;">Severidade</div>
                 <div style="padding: 11px 10px; font-size: 11px; font-weight: 600; color: #8b949e; text-transform: uppercase; letter-spacing: 0.04em;">Sistema</div>
                 <div style="padding: 11px 10px; font-size: 11px; font-weight: 600; color: #8b949e; text-transform: uppercase; letter-spacing: 0.04em;">Grupo</div>
                 <div style="padding: 11px 10px; font-size: 11px; font-weight: 600; color: #8b949e; text-transform: uppercase; letter-spacing: 0.04em;">Solicitante</div>
                 <div style="padding: 11px 10px; font-size: 11px; font-weight: 600; color: #8b949e; text-transform: uppercase; letter-spacing: 0.04em;">Descrição</div>
                 <div style="padding: 11px 10px; font-size: 11px; font-weight: 600; color: #8b949e; text-transform: uppercase; letter-spacing: 0.04em;">Status</div>
-                <div onclick="{{ toggleSortTempo }}" style="padding: 11px 10px; font-size: 11px; font-weight: 600; color: {{ tempoHeaderColor }}; text-transform: uppercase; letter-spacing: 0.04em; cursor: pointer; display: flex; align-items: center; gap: 5px; user-select: none;">Tempo<span style="font-size: 11px; opacity: 0.8;">{{ sortTempoArrow }}</span></div>
+                <div onclick="{{ toggleSortTempo }}" style="padding: 11px 10px; font-size: 11px; font-weight: 600; color: {{ tempoHeaderColor }}; text-transform: uppercase; letter-spacing: 0.04em; cursor: pointer; display: flex; align-items: center; gap: 5px; user-select: none;">T.Backlog<span style="font-size: 11px; opacity: 0.8;">{{ sortTempoArrow }}</span></div>
+                <div style="padding: 11px 10px; font-size: 11px; font-weight: 600; color: #8b949e; text-transform: uppercase; letter-spacing: 0.04em;">T.Resolução</div>
                 <div style="padding: 11px 10px; font-size: 11px; font-weight: 600; color: #8b949e; text-transform: uppercase; letter-spacing: 0.04em; text-align: center;">OK?</div>
               </div>
 
               <sc-if value="{{ hasRows }}" hint-placeholder-val="{{ true }}">
                 <sc-for list="{{ rows }}" as="t" hint-placeholder-count="0">
                   <div style="border-bottom: 1px solid #1b2027; animation: rowIn .25s ease; border-left: {{ t.overdueLeft }};">
-                    <div onclick="{{ t.onToggle }}" style="display: grid; grid-template-columns: 116px 132px 150px 130px 1fr 134px 132px 64px; align-items: center; padding: 0 6px; cursor: pointer; background: {{ t.rowBg }};">
+                    <div onclick="{{ t.onToggle }}" style="display: grid; grid-template-columns: 116px 132px 150px 130px 1fr 134px 110px 118px 64px; align-items: center; padding: 0 6px; cursor: pointer; background: {{ t.rowBg }};">
                       <div style="padding: 12px 10px;"><span style="{{ t.sevStyle }}">{{ t.severidade }}</span></div>
                       <div style="padding: 12px 10px; font-size: 13px; font-weight: 500; font-family: 'IBM Plex Mono', monospace; color: #e6edf3;">{{ t.sistemasDisplay }}</div>
                       <div style="padding: 12px 10px; font-size: 12.5px; color: #c9d1d9;">{{ t.origem }}</div>
@@ -685,7 +687,8 @@
                           <span style="font-size: 10.5px; color: #f0883e; font-weight: 600; letter-spacing: 0.01em;">⚠ +{{ t.overdueWorkHours }}h em atend.</span>
                         </sc-if>
                       </div>
-                      <div style="padding: 12px 10px; font-size: 12.5px; font-family: 'IBM Plex Mono', monospace; color: {{ t.tempoColor }};">{{ t.tempo }}</div>
+                      <div style="padding: 12px 10px; font-size: 11.5px; font-family: 'IBM Plex Mono', monospace; color: {{ t.tempoBacklogColor }};">{{ t.tempoBacklog }}</div>
+                      <div style="padding: 12px 10px; font-size: 11.5px; font-family: 'IBM Plex Mono', monospace; color: {{ t.tempoResolucaoColor }};">{{ t.tempoResolucao }}</div>
                       <div style="padding: 12px 10px; text-align: center;"><span style="{{ t.defatoDot }}"></span></div>
                     </div>
 
@@ -693,45 +696,126 @@
                       <div style="padding: 4px 16px 20px; background: #12171e;">
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px 20px; padding: 16px 16px 4px;">
 
-                          <!-- full description -->
-                          <div style="grid-column: 1 / -1; display: flex; gap: 18px; flex-wrap: wrap; font-size: 12px; color: #8b949e;">
-                            <span>Origem: <b style="color: #c9d1d9; font-weight: 500;">{{ t.origem }}</b></span>
-                            <span>Setor: <b style="color: #c9d1d9; font-weight: 500;">{{ t.setorSolicitante }}</b></span>
-                            <span>Acionado: <b style="color: #c9d1d9; font-weight: 500; font-family: 'IBM Plex Mono', monospace;">{{ t.acionamentoFmt }}</b></span>
-                            <sc-if value="{{ t.hasInicioAtendimento }}" hint-placeholder-val="{{ false }}">
-                              <span>Início atendimento: <b style="color: #58a6ff; font-weight: 600; font-family: 'IBM Plex Mono', monospace;">{{ t.inicioAtendimentoFmt }}</b></span>
-                              <span>Tempo de resposta: <b style="color: #8b949e; font-weight: 600; font-family: 'IBM Plex Mono', monospace;">{{ t.tempoResposta }}</b></span>
-                            </sc-if>
-                            <span>Resolvido: <b style="color: #c9d1d9; font-weight: 500; font-family: 'IBM Plex Mono', monospace;">{{ t.resolvedFmt }}</b></span>
-                            <span>Responsável: <b style="color: #c9d1d9; font-weight: 500;">{{ t.responsavelFmt }}</b></span>
-                          </div>
-                          <div style="grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px; align-items: center;">
-                            <span style="font-size: 11.5px; color: #8b949e; margin-right: 2px;">Sistemas:</span>
-                            <sc-for list="{{ t.sistemaTags }}" as="tag" hint-placeholder-count="1">
-                              <span style="display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11.5px; font-weight: 600; color: #2f81f7; background: rgba(47,129,247,0.1); border: 1px solid rgba(47,129,247,0.25); font-family: 'IBM Plex Mono', monospace;">{{ tag }}</span>
-                            </sc-for>
-                          </div>
+                          <!-- campos editáveis do chamado -->
+                          <label style="display: flex; flex-direction: column; gap: 6px;">
+                            <span style="font-size: 11px; font-weight: 600; color: #8b949e; text-transform: uppercase; letter-spacing: 0.04em;">Solicitante</span>
+                            <input value="{{ t.solicitante }}" onchange="{{ t.patchSolicitante }}" placeholder="Quem acionou" style="background: #0d1117; border: 1px solid #2a313b; border-radius: 8px; padding: 9px 11px; color: #e6edf3; font-size: 13px; outline: none;">
+                          </label>
 
-                          <sc-if value="{{ t.descricao }}" hint-placeholder-val="{{ false }}">
-                            <div style="grid-column: 1 / -1; font-size: 13px; color: #c9d1d9; line-height: 1.55; background: #0d1117; border: 1px solid #21262d; border-radius: 8px; padding: 11px 13px;">{{ t.descricao }}</div>
+                          <label style="display: flex; flex-direction: column; gap: 6px;">
+                            <span style="font-size: 11px; font-weight: 600; color: #8b949e; text-transform: uppercase; letter-spacing: 0.04em;">Setor / Área</span>
+                            <input value="{{ t.setorSolicitanteRaw }}" onchange="{{ t.patchSetorSolicitante }}" placeholder="Ex: Operações, Marketing…" style="background: #0d1117; border: 1px solid #2a313b; border-radius: 8px; padding: 9px 11px; color: #e6edf3; font-size: 13px; outline: none;">
+                          </label>
+
+                          <label style="display: flex; flex-direction: column; gap: 6px;">
+                            <span style="font-size: 11px; font-weight: 600; color: #8b949e; text-transform: uppercase; letter-spacing: 0.04em;">Severidade</span>
+                            <select value="{{ t.severidade }}" onchange="{{ t.patchSeveridade }}" style="background: #0d1117; border: 1px solid #2a313b; border-radius: 8px; padding: 9px 11px; color: #e6edf3; font-size: 13px; outline: none;">
+                              <sc-for list="{{ severidades }}" as="sv" hint-placeholder-count="4"><option value="{{ sv }}">{{ sv }}</option></sc-for>
+                            </select>
+                          </label>
+
+                          <label style="display: flex; flex-direction: column; gap: 6px;">
+                            <span style="font-size: 11px; font-weight: 600; color: #8b949e; text-transform: uppercase; letter-spacing: 0.04em;">Responsável</span>
+                            <input value="{{ t.responsavelRaw }}" onchange="{{ t.patchResponsavel }}" placeholder="Quem vai tocar" style="background: #0d1117; border: 1px solid #2a313b; border-radius: 8px; padding: 9px 11px; color: #e6edf3; font-size: 13px; outline: none;">
+                          </label>
+
+                          <label style="grid-column: 1 / -1; display: flex; flex-direction: column; gap: 6px;">
+                            <span style="font-size: 11px; font-weight: 600; color: #8b949e; text-transform: uppercase; letter-spacing: 0.04em;">Forma de acionamento</span>
+                            <div style="display: flex; gap: 6px; max-width: 340px;">
+                              <button onclick="{{ t.patchFormaGrupo }}" style="{{ t.formaGrupoBtnEdit }}">Grupo do Teams</button>
+                              <button onclick="{{ t.patchFormaPrivado }}" style="{{ t.formaPrivadoBtnEdit }}">Privado</button>
+                            </div>
+                          </label>
+
+                          <sc-if value="{{ t.isFormaGrupoEdit }}" hint-placeholder-val="{{ false }}">
+                            <label style="grid-column: 1 / -1; display: flex; flex-direction: column; gap: 6px;">
+                              <span style="font-size: 11px; font-weight: 600; color: #8b949e; text-transform: uppercase; letter-spacing: 0.04em;">Grupo do Teams</span>
+                              <select value="{{ t.grupo }}" onchange="{{ t.patchGrupo }}" style="background: #0d1117; border: 1px solid #2a313b; border-radius: 8px; padding: 9px 11px; color: #e6edf3; font-size: 13px; outline: none; max-width: 340px;">
+                                <option value="">Selecione o grupo…</option>
+                                <sc-for list="{{ grupos }}" as="g" hint-placeholder-count="4"><option value="{{ g }}">{{ g }}</option></sc-for>
+                              </select>
+                            </label>
                           </sc-if>
 
+                          <label style="grid-column: 1 / -1; display: flex; flex-direction: column; gap: 7px;">
+                            <span style="font-size: 11px; font-weight: 600; color: #8b949e; text-transform: uppercase; letter-spacing: 0.04em;">Sistema / Plataforma</span>
+                            <div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center;">
+                              <sc-for list="{{ t.expandedSistemas }}" as="es" hint-placeholder-count="6">
+                                <button onclick="{{ es.onToggle }}" style="{{ es.pillStyle }}">{{ es.label }}</button>
+                              </sc-for>
+                            </div>
+                          </label>
+
+                          <label style="grid-column: 1 / -1; display: flex; flex-direction: column; gap: 6px;">
+                            <span style="font-size: 11px; font-weight: 600; color: #8b949e; text-transform: uppercase; letter-spacing: 0.04em;">Descrição do problema</span>
+                            <textarea value="{{ t.descricao }}" onchange="{{ t.patchDescricao }}" placeholder="O que está acontecendo, sintoma, impacto…" rows="2" style="background: #0d1117; border: 1px solid #2a313b; border-radius: 8px; padding: 9px 11px; color: #e6edf3; font-size: 13px; outline: none; resize: vertical; font-family: inherit; line-height: 1.5;"></textarea>
+                          </label>
+
+                          <label style="display: flex; flex-direction: column; gap: 6px;">
+                            <span style="font-size: 11px; font-weight: 600; color: #8b949e; text-transform: uppercase; letter-spacing: 0.04em;">Data/hora do acionamento</span>
+                            <input type="datetime-local" value="{{ t.acionamentoRaw }}" onchange="{{ t.patchAcionamento }}" style="background: #0d1117; border: 1px solid #2a313b; border-radius: 8px; padding: 9px 11px; color: #e6edf3; font-size: 13px; outline: none; color-scheme: dark;">
+                          </label>
+
+                          <!-- linha de metadados derivados -->
+                          <div style="grid-column: 1 / -1; display: flex; gap: 16px; flex-wrap: wrap; font-size: 11.5px; color: #5b6573; padding-top: 4px; border-top: 1px solid #1b2027;">
+                            <sc-if value="{{ t.hasInicioAtendimento }}" hint-placeholder-val="{{ false }}">
+                              <span>Início atend.: <b style="color: #58a6ff; font-family: 'IBM Plex Mono', monospace; font-weight: 600;">{{ t.inicioAtendimentoFmt }}</b></span>
+                              <span>T.Resposta: <b style="color: #8b949e; font-family: 'IBM Plex Mono', monospace; font-weight: 600;">{{ t.tempoResposta }}</b></span>
+                            </sc-if>
+                            <sc-if value="{{ t.isResolvido }}" hint-placeholder-val="{{ false }}">
+                              <span>Resolvido: <b style="color: #3fb950; font-family: 'IBM Plex Mono', monospace; font-weight: 600;">{{ t.resolvedFmt }}</b></span>
+                            </sc-if>
+                          </div>
+
                           <!-- status control -->
-                          <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <span style="font-size: 11px; font-weight: 600; color: #8b949e; text-transform: uppercase; letter-spacing: 0.04em;">Status</span>
-                            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-                              <button onclick="{{ t.setAberto }}" style="{{ t.btnAberto }}">Aberto</button>
-                              <button onclick="{{ t.setAndamento }}" style="{{ t.btnAndamento }}">Em andamento</button>
-                              <button onclick="{{ t.setResolvido }}" style="{{ t.btnResolvido }}">Resolvido</button>
-                            </div>
-                            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 2px;">
-                              <sc-if value="{{ t.semInicioAtendimento }}" hint-placeholder-val="{{ false }}">
-                                <button onclick="{{ t.startAtendimento }}" style="padding: 7px 14px; border-radius: 7px; border: 1px solid rgba(88,166,255,0.5); background: rgba(88,166,255,0.1); color: #58a6ff; font-size: 12px; font-weight: 600; cursor: pointer;">▶ Iniciar atendimento agora</button>
-                              </sc-if>
-                              <sc-if value="{{ t.hasInicioAtendimento }}" hint-placeholder-val="{{ false }}">
-                                <span style="display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 7px; background: rgba(88,166,255,0.07); border: 1px solid rgba(88,166,255,0.2); font-size: 12px; color: #58a6ff;">✓ Atendimento iniciado · {{ t.inicioAtendimentoFmt }}</span>
+                          <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <span style="font-size: 11px; font-weight: 600; color: #8b949e; text-transform: uppercase; letter-spacing: 0.04em;">Status do atendimento</span>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                              <span style="{{ t.statusStyle }}">{{ t.statusLabel }}</span>
+                              <sc-if value="{{ t.isPausado }}" hint-placeholder-val="{{ false }}">
+                                <span style="font-size: 11.5px; color: #8b949e; font-family: 'IBM Plex Mono', monospace;">pausado desde {{ t.pausadoEmFmt }}</span>
                               </sc-if>
                             </div>
+
+                            <!-- ABERTO: iniciar -->
+                            <sc-if value="{{ t.isAberto }}" hint-placeholder-val="{{ false }}">
+                              <div style="display: flex; flex-direction: column; gap: 8px;">
+                                <button onclick="{{ t.startAtendimento }}" style="align-self: flex-start; padding: 9px 18px; border-radius: 7px; border: 1px solid rgba(63,185,80,0.5); background: rgba(63,185,80,0.1); color: #3fb950; font-size: 13px; font-weight: 600; cursor: pointer;">▶ Iniciar atividade</button>
+                                <span style="font-size: 11.5px; color: #5b6573;">O chamado deve ser iniciado antes de ser resolvido.</span>
+                              </div>
+                            </sc-if>
+
+                            <!-- ANDAMENTO: editar hora + pausar + concluir -->
+                            <sc-if value="{{ t.isAndamento }}" hint-placeholder-val="{{ false }}">
+                              <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <div style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #8b949e;">
+                                  <span style="white-space: nowrap;">Início da atividade:</span>
+                                  <input type="datetime-local" value="{{ t.inicioAtendimento }}" onchange="{{ t.setInicioAtendimento }}" style="background: #0d1117; border: 1px solid #2a313b; border-radius: 7px; padding: 5px 8px; color: #e6edf3; font-size: 12px; outline: none; color-scheme: dark;">
+                                </div>
+                                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                  <button onclick="{{ t.pausarAtendimento }}" style="padding: 8px 16px; border-radius: 7px; border: 1px solid rgba(139,148,158,0.5); background: rgba(139,148,158,0.1); color: #8b949e; font-size: 12.5px; font-weight: 600; cursor: pointer;">⏸ Pausar atendimento</button>
+                                  <button onclick="{{ t.concluirChamado }}" style="padding: 8px 16px; border-radius: 7px; border: 1px solid rgba(63,185,80,0.5); background: rgba(63,185,80,0.1); color: #3fb950; font-size: 12.5px; font-weight: 600; cursor: pointer;">✓ Concluir chamado</button>
+                                </div>
+                              </div>
+                            </sc-if>
+
+                            <!-- PAUSADO: retomar -->
+                            <sc-if value="{{ t.isPausado }}" hint-placeholder-val="{{ false }}">
+                              <div style="display: flex; flex-direction: column; gap: 8px;">
+                                <div style="display: flex; align-items: center; gap: 8px; background: rgba(139,148,158,0.07); border: 1px solid rgba(139,148,158,0.25); border-radius: 8px; padding: 10px 12px; font-size: 12.5px; color: #8b949e;">
+                                  <span style="width: 7px; height: 7px; border-radius: 50%; background: #8b949e; flex-shrink: 0;"></span>
+                                  <span>Tempo acumulado: <b style="color: #c9d1d9; font-family: 'IBM Plex Mono', monospace;">{{ t.tempoResolucao }}</b></span>
+                                </div>
+                                <button onclick="{{ t.retomarAtendimento }}" style="align-self: flex-start; padding: 9px 18px; border-radius: 7px; border: 1px solid rgba(210,153,34,0.5); background: rgba(210,153,34,0.1); color: #d29922; font-size: 13px; font-weight: 600; cursor: pointer;">▶ Voltar a resolver a tarefa</button>
+                              </div>
+                            </sc-if>
+
+                            <!-- RESOLVIDO: info -->
+                            <sc-if value="{{ t.isResolvido }}" hint-placeholder-val="{{ false }}">
+                              <div style="font-size: 12px; color: #8b949e;">
+                                Resolvido em: <b style="color: #3fb950; font-family: 'IBM Plex Mono', monospace;">{{ t.resolvedFmt }}</b>
+                              </div>
+                            </sc-if>
                           </div>
 
                           <!-- de fato + tempo -->
@@ -740,10 +824,8 @@
                             <button onclick="{{ t.toggleDefato }}" style="{{ t.defatoBtn }}">
                               <span style="{{ t.defatoCheck }}">✓</span> Resolvido de fato
                             </button>
-                            <span style="font-size: 12px; color: #8b949e;">Tempo total (abertura→resolução): <b style="color: {{ t.tempoColor }}; font-family: 'IBM Plex Mono', monospace; font-weight: 600;">{{ t.tempo }}</b></span>
-                            <sc-if value="{{ t.hasInicioAtendimento }}" hint-placeholder-val="{{ false }}">
-                              <span style="font-size: 12px; color: #8b949e;">Tempo de atendimento (início→resolução): <b style="color: #58a6ff; font-family: 'IBM Plex Mono', monospace; font-weight: 600;">{{ t.tempoAtendimento }}</b></span>
-                            </sc-if>
+                            <span style="font-size: 12px; color: #8b949e;">T. Backlog: <b style="color: {{ t.tempoBacklogColor }}; font-family: 'IBM Plex Mono', monospace; font-weight: 600;">{{ t.tempoBacklog }}</b></span>
+                            <span style="font-size: 12px; color: #8b949e;">T. Resolução (trab. ativo): <b style="color: {{ t.tempoResolucaoColor }}; font-family: 'IBM Plex Mono', monospace; font-weight: 600;">{{ t.tempoResolucao }}</b></span>
                           </div>
 
                           <!-- parceiro externo -->
@@ -830,19 +912,6 @@
                             <textarea value="{{ t.comentarios }}" onchange="{{ t.setComentarios }}" placeholder="Anotações, encaminhamentos, follow-up…" rows="2" style="background: #0d1117; border: 1px solid #2a313b; border-radius: 8px; padding: 10px 12px; color: #e6edf3; font-size: 13px; outline: none; resize: vertical; font-family: inherit; line-height: 1.5;"></textarea>
                           </div>
 
-                          <sc-if value="{{ t.isPauseConfirm }}" hint-placeholder-val="{{ false }}">
-                            <div style="grid-column: 1 / -1; background: rgba(210,153,34,0.07); border: 1px solid rgba(210,153,34,0.4); border-radius: 9px; padding: 15px 16px;">
-                              <div style="display: flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 600; color: #e6edf3; margin-bottom: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #d29922; flex-shrink: 0;"></span>O que fazer com o tempo em andamento?</div>
-                              <div style="font-size: 12.5px; color: #8b949e; line-height: 1.6; margin-bottom: 14px;">Este chamado tem <b style="color: #c9d1d9;">{{ t.tempoAndamentoAcumulado }}</b> registrado em andamento. Escolha como tratar esse período antes de voltar para Aberto.</div>
-                              <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;">
-                                <button onclick="{{ t.pausarAtendimento }}" style="padding: 9px 16px; border-radius: 7px; border: 1px solid rgba(210,153,34,0.5); background: rgba(210,153,34,0.12); color: #d29922; font-size: 12.5px; font-weight: 600; cursor: pointer;">⏸ Pausar — manter tempo acumulado</button>
-                                <button onclick="{{ t.zerarAtendimento }}" style="padding: 9px 16px; border-radius: 7px; border: 1px solid #2a313b; background: transparent; color: #8b949e; font-size: 12.5px; font-weight: 500; cursor: pointer;">↺ Zerar — reiniciar do zero</button>
-                                <button onclick="{{ t.cancelPause }}" style="padding: 9px 14px; border-radius: 7px; border: 1px solid #2a313b; background: transparent; color: #6e7681; font-size: 12.5px; cursor: pointer;">Cancelar</button>
-                              </div>
-                              <div style="font-size: 11.5px; color: #5b6573; line-height: 1.5;"><b style="color: #6e7681;">Pausar</b> preserva os {{ t.tempoAndamentoAcumulado }} já trabalhados; ao retomar "Em andamento" o cronômetro continua de onde parou. <b style="color: #6e7681;">Zerar</b> descarta esse período e reinicia do zero na próxima retomada.</div>
-                            </div>
-                          </sc-if>
-
                           <sc-if value="{{ t.isConfirming }}" hint-placeholder-val="{{ false }}">
                             <div style="grid-column: 1 / -1; background: rgba(63,185,80,0.07); border: 1px solid rgba(63,185,80,0.35); border-radius: 9px; padding: 15px 16px;">
                               <div style="display: flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 600; color: #e6edf3; margin-bottom: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #3fb950; flex-shrink: 0;"></span>Confirmar que o problema foi resolvido?</div>
@@ -925,9 +994,9 @@
             <!-- MTTR -->
             <div style="background: #161b22; border: 1px solid #21262d; border-radius: 12px; padding: 20px 22px; margin-bottom: 14px;">
               <div style="display: flex; align-items: baseline; gap: 14px; margin-bottom: 16px;">
-                <span style="font-size: 13px; font-weight: 600; color: #c9d1d9;">Tempo médio de resolução (MTTR)</span>
+                <span style="font-size: 13px; font-weight: 600; color: #c9d1d9;">Tempo médio de resolução — MTTR</span>
                 <span style="font-size: 22px; font-weight: 600; font-family: 'IBM Plex Mono', monospace; color: #2f81f7;">{{ kpi.mttrGeral }}</span>
-                <span style="font-size: 12px; color: #5b6573;">geral</span>
+                <span style="font-size: 12px; color: #5b6573;">tempo ativo em atendimento</span>
               </div>
               <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
                 <sc-for list="{{ mttrPorSev }}" as="m" hint-placeholder-count="4">
@@ -936,6 +1005,40 @@
                     <div style="font-size: 18px; font-weight: 600; font-family: 'IBM Plex Mono', monospace;">{{ m.value }}</div>
                   </div>
                 </sc-for>
+              </div>
+            </div>
+
+            <!-- MTBR — Tempo em Backlog -->
+            <div style="background: #161b22; border: 1px solid #21262d; border-radius: 12px; padding: 20px 22px; margin-bottom: 14px;">
+              <div style="display: flex; align-items: baseline; gap: 14px; margin-bottom: 16px; flex-wrap: wrap;">
+                <span style="font-size: 13px; font-weight: 600; color: #c9d1d9;">Tempo médio em backlog — MTBR</span>
+                <span style="font-size: 22px; font-weight: 600; font-family: 'IBM Plex Mono', monospace; color: #f0883e;">{{ kpi.mtbrGeral }}</span>
+                <span style="font-size: 12px; color: #5b6573;">abertura → início do atendimento</span>
+                <span style="font-size: 13px; color: #8b949e; margin-left: 6px;">{{ kpi.pctBacklog }} do tempo total</span>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div style="background: #0d1117; border: 1px solid #21262d; border-radius: 9px; padding: 12px 14px;">
+                  <div style="font-size: 12px; color: #8b949e; margin-bottom: 7px;">Total acumulado em backlog</div>
+                  <div style="font-size: 18px; font-weight: 600; font-family: 'IBM Plex Mono', monospace;">{{ kpi.mtbrTotal }}</div>
+                </div>
+                <div style="background: #0d1117; border: 1px solid #21262d; border-radius: 9px; padding: 12px 14px;">
+                  <div style="font-size: 12px; color: #8b949e; margin-bottom: 7px;">Chamados com atendimento iniciado</div>
+                  <div style="font-size: 18px; font-weight: 600; font-family: 'IBM Plex Mono', monospace;">{{ kpi.qtdComInicio }} <span style="font-size: 13px; color: #5b6573;">de {{ kpi.total }}</span></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Chamados Pausados -->
+            <div style="background: #161b22; border: 1px solid #21262d; border-radius: 12px; padding: 20px 22px; margin-bottom: 14px;">
+              <div style="display: flex; align-items: baseline; gap: 14px; margin-bottom: 16px; flex-wrap: wrap;">
+                <span style="font-size: 13px; font-weight: 600; color: #c9d1d9;">Chamados pausados</span>
+                <span style="font-size: 22px; font-weight: 600; font-family: 'IBM Plex Mono', monospace; color: #8b949e;">{{ kpi.qtdPausados }}</span>
+                <span style="font-size: 12px; color: #5b6573;">total</span>
+                <span style="font-size: 13px; color: #8b949e; margin-left: 6px;">{{ kpi.pctPausados }} dos chamados</span>
+              </div>
+              <div style="background: #0d1117; border: 1px solid #21262d; border-radius: 9px; padding: 12px 14px; max-width: 300px;">
+                <div style="font-size: 12px; color: #8b949e; margin-bottom: 7px;">Tempo médio de pausa por chamado</div>
+                <div style="font-size: 18px; font-weight: 600; font-family: 'IBM Plex Mono', monospace;">{{ kpi.avgPausedTime }}</div>
               </div>
             </div>
 
@@ -1067,6 +1170,7 @@ class Component extends DCLogic {
     this.statusMap = {
       'aberto':    { label: 'Aberto',        c: '#f85149', b: 'rgba(248,81,73,0.13)' },
       'andamento': { label: 'Em andamento',  c: '#d29922', b: 'rgba(210,153,34,0.13)' },
+      'pausado':   { label: 'Pausado',       c: '#8b949e', b: 'rgba(139,148,158,0.13)' },
       'resolvido': { label: 'Resolvido',     c: '#3fb950', b: 'rgba(63,185,80,0.13)' }
     };
     this.state = {
@@ -1357,30 +1461,46 @@ class Component extends DCLogic {
   }
   setStatus(id, status) {
     const t = this.state.tickets.find(x => x.id === id);
-    if (status === 'aberto' && t.status === 'andamento' && (t.inicioAtendimento || t.tempoAcumulado)) {
-      this.setState({ pauseConfirmId: id });
+    if (!t) return;
+    if ((t.status === 'aberto' || t.status === 'pausado') && status === 'resolvido') {
+      this.showToast('Inicie (ou retome) o atendimento antes de concluir o chamado.');
       return;
     }
     const obj = { status };
-    if (status === 'andamento' && !t.inicioAtendimento) obj.inicioAtendimento = this.nowLocal();
-    if (status === 'resolvido') { if (!t.resolvedAt) obj.resolvedAt = this.nowLocal(); }
-    else { obj.resolvedAt = null; }
+    if (status === 'andamento' && !t.inicioAtendimento && !(t.tempoAcumulado > 0)) obj.inicioAtendimento = this.nowLocal();
+    if (status === 'resolvido') {
+      if (!t.resolvedAt) obj.resolvedAt = this.nowLocal();
+      if (t.inicioAtendimento) {
+        obj.tempoAcumulado = (t.tempoAcumulado || 0) + (Date.now() - new Date(t.inicioAtendimento).getTime());
+        obj.inicioAtendimento = null;
+      }
+    } else { obj.resolvedAt = null; }
     this.patch(id, obj);
   }
   pausarAtendimento(id) {
     const t = this.state.tickets.find(x => x.id === id);
     if (!t) return;
     const acumulado = (t.tempoAcumulado || 0) + (t.inicioAtendimento ? (Date.now() - new Date(t.inicioAtendimento).getTime()) : 0);
-    this.patch(id, { status: 'aberto', resolvedAt: null, tempoAcumulado: acumulado, inicioAtendimento: null });
-    this.setState({ pauseConfirmId: null });
+    const pausedAt = this.nowLocal();
+    this.patch(id, { status: 'pausado', resolvedAt: null, tempoAcumulado: acumulado, inicioAtendimento: null, pausedAt, totalPausedMs: t.totalPausedMs || 0 });
     this.showToast('⏸ Atendimento pausado — ' + this.fmtDur(acumulado) + ' acumulado.');
   }
-  zerarAtendimento(id) {
-    this.patch(id, { status: 'aberto', resolvedAt: null, tempoAcumulado: 0, inicioAtendimento: null });
-    this.setState({ pauseConfirmId: null });
-    this.showToast('↺ Período zerado — cronômetro reiniciará ao retomar.');
+  retomarAtendimento(id) {
+    const t = this.state.tickets.find(x => x.id === id);
+    if (!t) return;
+    const pausedDur = t.pausedAt ? (Date.now() - new Date(t.pausedAt).getTime()) : 0;
+    const totalPausedMs = (t.totalPausedMs || 0) + pausedDur;
+    this.patch(id, { status: 'andamento', inicioAtendimento: this.nowLocal(), pausedAt: null, totalPausedMs });
+    this.showToast('▶ Atendimento retomado.');
   }
-  cancelPause() { this.setState({ pauseConfirmId: null }); }
+  iniciarConclusao(id) {
+    const t = this.state.tickets.find(x => x.id === id);
+    if (!t || t.status !== 'andamento') return;
+    const acumulado = (t.tempoAcumulado || 0) + (t.inicioAtendimento ? (Date.now() - new Date(t.inicioAtendimento).getTime()) : 0);
+    const resolvedAt = this.nowLocal();
+    this.patch(id, { status: 'resolvido', resolvedAt, tempoAcumulado: acumulado, inicioAtendimento: null });
+    this.setState({ confirmingId: id });
+  }
   toggleExpand(id) { this.setState(s => ({ expanded: s.expanded === id ? null : id })); }
   deleteTicket(id) {
     if (!confirm('Excluir este chamado permanentemente?')) return;
@@ -1466,18 +1586,38 @@ class Component extends DCLogic {
     }) : tickets;
 
     // --- rows ---
+    const allSistemasOpts = [...this.sistemas.filter(s => !st.hiddenSistemas.includes(s)), ...st.customSistemas];
     const visible = this.visibleTickets();
     const now = new Date();
     const rows = visible.map(t => {
       const sev = this.sevMap[t.severidade] || this.sevMap['Média'];
       const stt = this.statusMap[t.status] || this.statusMap['aberto'];
-      let tempo = '—', tempoColor = '#5b6573';
       const ac = new Date(t.acionamento);
-      if (t.status === 'resolvido' && t.resolvedAt) {
-        tempo = this.fmtDur(new Date(t.resolvedAt) - ac); tempoColor = '#3fb950';
-      } else if (!isNaN(ac.getTime())) {
-        tempo = 'há ' + this.fmtDur(now - ac); tempoColor = '#8b949e';
-      }
+      const tempoBacklog = (() => {
+        if (t.inicioAtendimento) return this.fmtDur(new Date(t.inicioAtendimento) - ac);
+        if (!isNaN(ac.getTime())) return 'há ' + this.fmtDur(now - ac);
+        return '—';
+      })();
+      const tempoBacklogColor = t.inicioAtendimento ? '#8b949e' : (t.status === 'aberto' ? '#c9d1d9' : '#8b949e');
+      const tempoResolucao = (() => {
+        if (t.status === 'resolvido') {
+          const acumulado = t.tempoAcumulado || 0;
+          if (acumulado > 0) return this.fmtDur(acumulado);
+          if (t.inicioAtendimento && t.resolvedAt) return this.fmtDur(new Date(t.resolvedAt) - new Date(t.inicioAtendimento));
+          return '—';
+        }
+        if (t.status === 'andamento') {
+          const acumulado = t.tempoAcumulado || 0;
+          if (!t.inicioAtendimento) return acumulado > 0 ? this.fmtDur(acumulado) : '—';
+          return this.fmtDur(acumulado + (now - new Date(t.inicioAtendimento)));
+        }
+        if (t.status === 'pausado') {
+          const acumulado = t.tempoAcumulado || 0;
+          return acumulado > 0 ? this.fmtDur(acumulado) : '—';
+        }
+        return '—';
+      })();
+      const tempoResolucaoColor = t.status === 'resolvido' ? '#3fb950' : t.status === 'andamento' ? '#d29922' : '#5b6573';
       const expanded = st.expanded === t.id;
       const defatoColor = t.resolvedDeFato ? '#3fb950' : '#2a313b';
       return {
@@ -1485,17 +1625,19 @@ class Component extends DCLogic {
         solicitante: t.solicitante, descricao: t.descricao,
         descricaoShort: t.descricao ? (t.descricao.length > 72 ? t.descricao.slice(0, 72) + '…' : t.descricao) : '—',
         responsavelFmt: t.responsavel || '—',
-        statusLabel: stt.label, tempo, tempoColor,
+        statusLabel: stt.label, tempoBacklog, tempoBacklogColor, tempoResolucao, tempoResolucaoColor,
         acionamentoFmt: this.humanDT(t.acionamento), resolvedFmt: this.humanDT(t.resolvedAt),
         sevStyle: this.badge(sev.c, sev.b), statusStyle: this.badge(stt.c, stt.b),
         rowBg: expanded ? '#12171e' : 'transparent',
         defatoDot: 'display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: ' + defatoColor + '; border: 1px solid ' + (t.resolvedDeFato ? '#3fb950' : '#3a424d') + ';',
         isExpanded: expanded,
+        isAberto: t.status === 'aberto',
+        isAndamento: t.status === 'andamento',
+        isPausado: t.status === 'pausado',
+        isResolvido: t.status === 'resolvido',
+        pausadoEmFmt: t.pausedAt ? this.humanDT(t.pausedAt) : '',
         parceiroExterno: t.parceiroExterno, parceiroQual: t.parceiroQual,
         outroSetor: t.outroSetor, setorQual: t.setorQual, comentarios: t.comentarios,
-        btnAberto: this.segBtn(t.status === 'aberto', '#f85149'),
-        btnAndamento: this.segBtn(t.status === 'andamento', '#d29922'),
-        btnResolvido: this.segBtn(t.status === 'resolvido', '#3fb950'),
         parceiroSimBtn: this.pillBtn(t.parceiroExterno === true, '#d29922'),
         parceiroNaoBtn: this.pillBtn(t.parceiroExterno === false, '#6e7681'),
         setorSimBtn: this.pillBtn(t.outroSetor === true, '#a371f7'),
@@ -1503,9 +1645,6 @@ class Component extends DCLogic {
         defatoBtn: 'display: inline-flex; align-items: center; gap: 8px; align-self: flex-start; padding: 8px 14px; border-radius: 7px; cursor: pointer; font-size: 12.5px; font-weight: 600; border: 1px solid ' + (t.resolvedDeFato ? '#3fb950' : '#2a313b') + '; background: ' + (t.resolvedDeFato ? 'rgba(63,185,80,0.12)' : 'transparent') + '; color: ' + (t.resolvedDeFato ? '#3fb950' : '#8b949e') + ';',
         defatoCheck: 'display: inline-flex; align-items: center; justify-content: center; width: 15px; height: 15px; border-radius: 4px; font-size: 10px; background: ' + (t.resolvedDeFato ? '#3fb950' : '#2a313b') + '; color: ' + (t.resolvedDeFato ? '#0d1117' : 'transparent') + ';',
         onToggle: () => this.toggleExpand(t.id),
-        setAberto: () => this.setStatus(t.id, 'aberto'),
-        setAndamento: () => this.setStatus(t.id, 'andamento'),
-        setResolvido: () => this.setStatus(t.id, 'resolvido'),
         toggleDefato: () => this.patch(t.id, { resolvedDeFato: !t.resolvedDeFato }),
         parceiroSim: () => this.patch(t.id, { parceiroExterno: true }),
         parceiroNao: () => this.patch(t.id, { parceiroExterno: false, parceiroQual: '' }),
@@ -1527,28 +1666,24 @@ class Component extends DCLogic {
         setorSolicitante: t.setorSolicitante || '—',
         sistemaTags: (t.sistemas && t.sistemas.length > 0) ? t.sistemas : (t.sistema ? [t.sistema] : ['—']),
         sistemasDisplay: (() => { const sis = (t.sistemas && t.sistemas.length > 0) ? t.sistemas : (t.sistema ? [t.sistema] : ['—']); return sis.length > 1 ? sis[0] + ' +' + (sis.length - 1) : sis[0]; })(),
-        tempoMs: (() => { const ac = new Date(t.acionamento).getTime(); return (t.status === 'resolvido' && t.resolvedAt) ? new Date(t.resolvedAt).getTime() - ac : now.getTime() - ac; })(),
+        tempoMs: (() => { const a = new Date(t.acionamento).getTime(); return (t.status === 'resolvido' && t.resolvedAt) ? new Date(t.resolvedAt).getTime() - a : now.getTime() - a; })(),
         hasInicioAtendimento: !!t.inicioAtendimento,
-        semInicioAtendimento: !t.inicioAtendimento && t.status !== 'resolvido',
+        semInicioAtendimento: t.status === 'aberto',
+        inicioAtendimento: t.inicioAtendimento || '',
         inicioAtendimentoFmt: t.inicioAtendimento ? this.humanDT(t.inicioAtendimento) : '—',
         tempoResposta: (() => {
           if (!t.inicioAtendimento) return '—';
           return this.fmtDur(new Date(t.inicioAtendimento) - new Date(t.acionamento));
         })(),
-        tempoAtendimento: (() => {
-          const acumulado = t.tempoAcumulado || 0;
-          if (!t.inicioAtendimento) return acumulado > 0 ? this.fmtDur(acumulado) : '—';
-          const end = t.resolvedAt ? new Date(t.resolvedAt) : now;
-          return this.fmtDur(acumulado + (end - new Date(t.inicioAtendimento)));
-        })(),
-        isOverdueWaiting: (t.status !== 'resolvido') && !t.inicioAtendimento && !(t.tempoAcumulado) && ((now - new Date(t.acionamento)) > 4 * 3600000),
+        tempoAtendimento: tempoResolucao,
+        isOverdueWaiting: (t.status === 'aberto') && !t.inicioAtendimento && !(t.tempoAcumulado) && ((now - ac) > 4 * 3600000),
         isOverdueWorking: (() => {
-          if (t.status === 'resolvido') return false;
+          if (t.status !== 'andamento') return false;
           const acumulado = t.tempoAcumulado || 0;
           const current = t.inicioAtendimento ? (now - new Date(t.inicioAtendimento)) : 0;
           return (acumulado + current) > 4 * 3600000;
         })(),
-        overdueHours: Math.floor((now - new Date(t.acionamento)) / 3600000),
+        overdueHours: Math.floor((now - ac) / 3600000),
         overdueWorkHours: (() => {
           const acumulado = t.tempoAcumulado || 0;
           const current = t.inicioAtendimento ? (now - new Date(t.inicioAtendimento)) : 0;
@@ -1556,28 +1691,49 @@ class Component extends DCLogic {
         })(),
         overdueLeft: (() => {
           if (t.status === 'resolvido') return '3px solid transparent';
-          if (!t.inicioAtendimento && (now - new Date(t.acionamento)) > 4 * 3600000) return '3px solid #d29922';
-          if (t.inicioAtendimento && (now - new Date(t.inicioAtendimento)) > 4 * 3600000) return '3px solid #f0883e';
+          if (t.status === 'aberto' && !t.inicioAtendimento && (now - ac) > 4 * 3600000) return '3px solid #d29922';
+          if (t.status === 'andamento' && t.inicioAtendimento && (now - new Date(t.inicioAtendimento)) > 4 * 3600000) return '3px solid #f0883e';
+          if (t.status === 'pausado') return '3px solid rgba(139,148,158,0.4)';
           return '3px solid transparent';
         })(),
         startAtendimento: () => this.startAtendimento(t.id),
-        isPauseConfirm: st.pauseConfirmId === t.id,
-        tempoAndamentoAcumulado: (() => {
-          const acumulado = (t.tempoAcumulado || 0) + (t.inicioAtendimento ? (now - new Date(t.inicioAtendimento)) : 0);
-          return acumulado > 0 ? this.fmtDur(acumulado) : '0min';
-        })(),
         pausarAtendimento: () => this.pausarAtendimento(t.id),
-        zerarAtendimento: () => this.zerarAtendimento(t.id),
-        cancelPause: () => this.cancelPause(),
+        retomarAtendimento: () => this.retomarAtendimento(t.id),
+        concluirChamado: () => this.iniciarConclusao(t.id),
+        setInicioAtendimento: e => this.patch(t.id, { inicioAtendimento: e.target.value }),
+        // campos editáveis do formulário
+        setorSolicitanteRaw: t.setorSolicitante || '',
+        responsavelRaw: t.responsavel || '',
+        acionamentoRaw: t.acionamento || '',
+        formaAcionamento: t.formaAcionamento || 'grupo',
+        isFormaGrupoEdit: (t.formaAcionamento || 'grupo') !== 'privado',
+        isFormaPrivadoEdit: t.formaAcionamento === 'privado',
+        formaGrupoBtnEdit: this.segBtn((t.formaAcionamento || 'grupo') !== 'privado', '#2f81f7'),
+        formaPrivadoBtnEdit: this.segBtn(t.formaAcionamento === 'privado', '#a371f7'),
+        expandedSistemas: allSistemasOpts.map(s => {
+          const curSis = (t.sistemas && t.sistemas.length) ? t.sistemas : (t.sistema ? [t.sistema] : []);
+          const sel = curSis.includes(s);
+          return { label: s, selected: sel, pillStyle: this.pillTagStyle(sel),
+            onToggle: () => { const cur = (t.sistemas && t.sistemas.length) ? t.sistemas : (t.sistema ? [t.sistema] : []); const next = cur.includes(s) ? cur.filter(x => x !== s) : [...cur, s]; this.patch(t.id, { sistemas: next, sistema: next[0] || '' }); }
+          };
+        }),
+        patchSolicitante: e => this.patch(t.id, { solicitante: e.target.value }),
+        patchSetorSolicitante: e => this.patch(t.id, { setorSolicitante: e.target.value }),
+        patchResponsavel: e => this.patch(t.id, { responsavel: e.target.value }),
+        patchDescricao: e => this.patch(t.id, { descricao: e.target.value }),
+        patchAcionamento: e => this.patch(t.id, { acionamento: e.target.value }),
+        patchSeveridade: e => this.patch(t.id, { severidade: e.target.value }),
+        patchFormaGrupo: () => this.patch(t.id, { formaAcionamento: 'grupo' }),
+        patchFormaPrivado: () => this.patch(t.id, { formaAcionamento: 'privado', grupo: '' }),
+        patchGrupo: e => this.patch(t.id, { grupo: e.target.value }),
         isConfirming: st.confirmingId === t.id,
         confirmMsg: (() => {
           const who = ['o solicitante (' + (t.solicitante || '—') + ')'];
           if (t.formaAcionamento !== 'privado' && t.grupo) who.push('o grupo ' + t.grupo);
           let msg = 'Recomende que quem concluiu avise ' + who.join(' e ') + ' que o problema foi resolvido.';
           if (t.parceiroExterno) {
-            const end = t.resolvedAt ? new Date(t.resolvedAt) : now;
-            const tempoAndamento = (t.tempoAcumulado || 0) + (t.inicioAtendimento ? (end - new Date(t.inicioAtendimento)) : 0);
-            if (tempoAndamento > 2 * 3600000) {
+            const wt = t.tempoAcumulado || 0;
+            if (wt > 2 * 3600000) {
               msg += ' ⚠ Este chamado ficou mais de 2h em andamento com atuação do parceiro ' + (t.parceiroQual || 'externo') + ' — registre no Jira para apontamento de horas trabalhadas.';
             }
           }
@@ -1602,14 +1758,51 @@ class Component extends DCLogic {
     const comSetor = dashTickets.filter(t => t.outroSetor).length;
     const pct = (n) => total ? Math.round(n / total * 100) + '%' : '0%';
 
-    const durOf = t => (t.status === 'resolvido' && t.resolvedAt) ? (new Date(t.resolvedAt) - new Date(t.acionamento)) : null;
-    const allDur = dashTickets.map(durOf).filter(d => d !== null && d >= 0);
     const avg = arr => arr.length ? this.fmtDur(arr.reduce((a, b) => a + b, 0) / arr.length) : '—';
 
+    // MTTR: tempo de trabalho ativo (exclui pausas)
+    const resolucaoDurOf = t => {
+      if (t.status !== 'resolvido') return null;
+      const acumulado = t.tempoAcumulado || 0;
+      if (acumulado > 0) return acumulado;
+      if (t.inicioAtendimento && t.resolvedAt) return new Date(t.resolvedAt) - new Date(t.inicioAtendimento);
+      return null;
+    };
+    const allDur = dashTickets.map(resolucaoDurOf).filter(d => d !== null && d >= 0);
+
     const mttrPorSev = this.severidades.map(sv => {
-      const ds = dashTickets.filter(t => t.severidade === sv).map(durOf).filter(d => d !== null && d >= 0);
+      const ds = dashTickets.filter(t => t.severidade === sv).map(resolucaoDurOf).filter(d => d !== null && d >= 0);
       return { label: sv, value: avg(ds), color: this.sevMap[sv].c };
     });
+
+    // MTBR: tempo médio em backlog (abertura → início do atendimento)
+    const backlogDurOf = t => {
+      if (!t.inicioAtendimento) return null;
+      const d = new Date(t.inicioAtendimento) - new Date(t.acionamento);
+      return d >= 0 ? d : null;
+    };
+    const allBacklogDur = dashTickets.map(backlogDurOf).filter(d => d !== null);
+    const totalBacklogMs = allBacklogDur.length ? allBacklogDur.reduce((a, b) => a + b, 0) : 0;
+    const pctBacklog = (() => {
+      const paired = dashTickets.filter(t => t.status === 'resolvido' && t.inicioAtendimento && t.resolvedAt);
+      if (!paired.length) return '—';
+      const bPcts = paired.map(t => {
+        const b = new Date(t.inicioAtendimento) - new Date(t.acionamento);
+        const r = resolucaoDurOf(t) || 0;
+        const tot = b + r;
+        return tot > 0 ? b / tot * 100 : 0;
+      });
+      return Math.round(bPcts.reduce((a, b) => a + b, 0) / bPcts.length) + '%';
+    })();
+
+    // Chamados pausados
+    const pausadosList = dashTickets.filter(t => (t.totalPausedMs || 0) > 0 || t.status === 'pausado');
+    const qtdPausados = pausadosList.length;
+    const allPausedMs = pausadosList.map(t => {
+      const live = (t.status === 'pausado' && t.pausedAt) ? (now.getTime() - new Date(t.pausedAt).getTime()) : 0;
+      return (t.totalPausedMs || 0) + live;
+    }).filter(ms => ms > 0);
+    const avgPausedTime = allPausedMs.length ? this.fmtDur(allPausedMs.reduce((a, b) => a + b, 0) / allPausedMs.length) : '—';
 
     const countBy = (fn) => {
       const m = {}; dashTickets.forEach(t => { const k = fn(t); m[k] = (m[k] || 0) + 1; });
@@ -1779,7 +1972,14 @@ class Component extends DCLogic {
         pctResolvidos: pct(resolvidos), resolvidosLabel: resolvidos + ' de ' + total,
         pctParceiro: pct(comParceiro), parceiroLabel: comParceiro + ' chamado' + (comParceiro === 1 ? '' : 's'),
         pctSetor: pct(comSetor), setorLabel: comSetor + ' chamado' + (comSetor === 1 ? '' : 's'),
-        mttrGeral: avg(allDur)
+        mttrGeral: avg(allDur),
+        mtbrGeral: avg(allBacklogDur),
+        mtbrTotal: totalBacklogMs > 0 ? this.fmtDur(totalBacklogMs) : '—',
+        pctBacklog,
+        qtdComInicio: dashTickets.filter(t => t.inicioAtendimento).length,
+        qtdPausados,
+        pctPausados: pct(qtdPausados),
+        avgPausedTime
       },
       mttrPorSev, barGrupos, barSistemas, barSetores, topOfensores, barHoras,
       lineChartEl, noLineChart: !lineChartEl,
