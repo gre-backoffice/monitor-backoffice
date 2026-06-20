@@ -1707,9 +1707,25 @@ class Component extends DCLogic {
         pausarAtendimento: () => this.pausarAtendimento(t.id),
         retomarAtendimento: () => this.retomarAtendimento(t.id),
         concluirChamado: () => this.iniciarConclusao(t.id),
-        setInicioAtendimento: e => this.patch(t.id, { inicioAtendimento: e.target.value }),
+        setInicioAtendimento: e => {
+          const newInicio = e.target.value;
+          const patches = { inicioAtendimento: newInicio };
+          if (t.status === 'resolvido' && newInicio && t.resolvedAt) {
+            const dur = new Date(t.resolvedAt) - new Date(newInicio);
+            if (dur > 0) patches.tempoAcumulado = dur;
+          }
+          this.patch(t.id, patches);
+        },
         resolvedAtRaw: t.resolvedAt || '',
-        patchResolvedAt: e => this.patch(t.id, { resolvedAt: e.target.value }),
+        patchResolvedAt: e => {
+          const newResolvedAt = e.target.value;
+          const patches = { resolvedAt: newResolvedAt };
+          if (t.status === 'resolvido' && t.inicioAtendimento && newResolvedAt) {
+            const dur = new Date(newResolvedAt) - new Date(t.inicioAtendimento);
+            if (dur > 0) patches.tempoAcumulado = dur;
+          }
+          this.patch(t.id, patches);
+        },
         // campos editáveis do formulário
         setorSolicitanteRaw: t.setorSolicitante || '',
         responsavelRaw: t.responsavel || '',
