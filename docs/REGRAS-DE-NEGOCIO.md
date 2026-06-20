@@ -74,9 +74,16 @@ Ao mover um chamado de **Em andamento** de volta para **Aberto**, o sistema exib
 - O **tempo de atendimento ativo** (trabalho real, excluindo pausas) fica congelado no campo `tempoAcumulado` no momento da conclusão.
 - O **tempo total do chamado** (acionamento → resolução) usa `resolvedAt − acionamento` para ordenação e gráficos.
 
-#### Correção retroativa do horário de resolução
+#### Correção retroativa de horários
 
-O campo **Resolvido em** é editável diretamente no card expandido do chamado (campo `datetime-local`). Isso permite corrigir o horário registrado de chamados anteriores.
+Os campos **Início do atend.** e **Resolvido em** são editáveis diretamente no card expandido do chamado resolvido (campos `datetime-local`). Isso permite corrigir registros anteriores com horários incorretos.
+
+**Impacto nos indicadores ao editar `inicioAtendimento`:**
+
+| Indicador | Comportamento |
+|---|---|
+| **Tempo de resposta** (`inicioAtendimento − acionamento`) | Recalculado com o novo horário |
+| **Tempo de atendimento ativo / MTTR** | **Não é afetado** — usa `tempoAcumulado` que fica congelado na conclusão |
 
 **Impacto nos indicadores ao editar `resolvedAt`:**
 
