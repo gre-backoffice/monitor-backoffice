@@ -810,11 +810,17 @@
                               </div>
                             </sc-if>
 
-                            <!-- RESOLVIDO: editar hora de resolução -->
+                            <!-- RESOLVIDO: editar horários retroativamente -->
                             <sc-if value="{{ t.isResolvido }}" hint-placeholder-val="{{ false }}">
-                              <div style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #8b949e;">
-                                <span style="white-space: nowrap;">Resolvido em:</span>
-                                <input type="datetime-local" value="{{ t.resolvedAtRaw }}" onchange="{{ t.patchResolvedAt }}" style="background: #0d1117; border: 1px solid #2a313b; border-radius: 7px; padding: 5px 8px; color: #3fb950; font-size: 12px; outline: none; color-scheme: dark;">
+                              <div style="display: flex; flex-direction: column; gap: 8px;">
+                                <div style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #8b949e;">
+                                  <span style="white-space: nowrap;">Início do atend.:</span>
+                                  <input type="datetime-local" value="{{ t.inicioAtendimento }}" onchange="{{ t.setInicioAtendimento }}" style="background: #0d1117; border: 1px solid #2a313b; border-radius: 7px; padding: 5px 8px; color: #58a6ff; font-size: 12px; outline: none; color-scheme: dark;">
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #8b949e;">
+                                  <span style="white-space: nowrap;">Resolvido em:</span>
+                                  <input type="datetime-local" value="{{ t.resolvedAtRaw }}" onchange="{{ t.patchResolvedAt }}" style="background: #0d1117; border: 1px solid #2a313b; border-radius: 7px; padding: 5px 8px; color: #3fb950; font-size: 12px; outline: none; color-scheme: dark;">
+                                </div>
                               </div>
                             </sc-if>
                           </div>
