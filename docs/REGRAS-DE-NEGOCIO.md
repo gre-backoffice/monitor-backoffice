@@ -69,10 +69,23 @@ Ao mover um chamado de **Em andamento** de volta para **Aberto**, o sistema exib
 > Use **Pausar** quando o problema foi temporariamente interrompido mas ainda está em investigação. Use **Zerar** quando o chamado foi encerrado prematuramente e precisa ser reaberto como novo ciclo.
 
 ### 4.4 Resolvido
-- Ao marcar como **Resolvido**, o sistema registra o horário de resolução (`resolvedAt`).
+- Ao marcar como **Resolvido**, o sistema registra automaticamente o horário de resolução (`resolvedAt`).
 - O analista deve clicar em **Salvar alterações** e confirmar a resolução no diálogo de confirmação.
-- O **tempo total de atendimento** = tempo acumulado em andamento (todas as sessões).
-- O **tempo total do chamado** (MTTR) = `resolvedAt − acionamento`.
+- O **tempo de atendimento ativo** (trabalho real, excluindo pausas) fica congelado no campo `tempoAcumulado` no momento da conclusão.
+- O **tempo total do chamado** (acionamento → resolução) usa `resolvedAt − acionamento` para ordenação e gráficos.
+
+#### Correção retroativa do horário de resolução
+
+O campo **Resolvido em** é editável diretamente no card expandido do chamado (campo `datetime-local`). Isso permite corrigir o horário registrado de chamados anteriores.
+
+**Impacto nos indicadores ao editar `resolvedAt`:**
+
+| Indicador | Comportamento |
+|---|---|
+| **Tempo de atendimento ativo / MTTR** | **Não é afetado** quando `tempoAcumulado > 0` (caso padrão) — o tempo real de trabalho fica preservado |
+| **Tempo total do chamado (`tempoMs`)** | Recalculado com o novo `resolvedAt − acionamento` |
+| **% tempo em backlog** | Recalculado com o novo `resolvedAt` |
+| **MTTR de chamados sem `tempoAcumulado`** | Recalculado via `resolvedAt − inicioAtendimento` — aplicável a registros históricos sem sessões de trabalho contabilizadas |
 
 ---
 
